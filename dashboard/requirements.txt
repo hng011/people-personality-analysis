@@ -1,5 +1,4 @@
 pandas
 matplotlib
 seaborn
-streamlit
-streamlit-open-menu
+streamlit-option-menu
