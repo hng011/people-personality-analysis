@@ -5,6 +5,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from streamlit_option_menu import option_menu
 
+DATA = "https://raw.githubusercontent.com/hng011/people-personality-analysis/refs/heads/main/people_personality_types.csv"
+
+def fetch_data(end_point):
+    import requests
+
+    res = requests.get(end_point)
+    if res.status_code == 200:
+        return res.content
+    else:
+        print("Something went wrong")
+
 def distribution_of_interests(df):
     st.header("DISTRIBUTION OF PEOPLE'S INTEREST")
     colors = ["#72BCD4", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
@@ -23,7 +34,10 @@ def home(df):
         
         with col1:
             st.subheader(f"Total Data: {df.shape[0]}")
-
+            st.download_button("Download Data 📃", 
+                               data=fetch_data(DATA), 
+                               file_name="people_personality_types.csv",
+                               mime="text/csv") 
         with col2:
             st.subheader(f"Total Male\t: {total_male}")
             st.subheader(f"Total Female\t: {total_female}")
@@ -39,7 +53,7 @@ def home(df):
     st.pyplot(fig)
 
 def main():
-    df = pd.read_csv("https://raw.githubusercontent.com/hng011/people-personality-analysis/refs/heads/main/people_personality_types.csv")
+    df = pd.read_csv(DATA)
     options = ["Home", "Distribution of Interests"]
 
     with st.sidebar:
