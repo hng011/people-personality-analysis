@@ -7,7 +7,6 @@ from streamlit_option_menu import option_menu
 from sklearn.preprocessing import RobustScaler
 import joblib
 import requests
-import os
 
 DATA = "https://raw.githubusercontent.com/hng011/people-personality-analysis/refs/heads/main/datasets/people_personality_types.csv"
 ENCODED_DATA = "https://raw.githubusercontent.com/hng011/people-personality-analysis/refs/heads/main/datasets/encoded_data.csv"
