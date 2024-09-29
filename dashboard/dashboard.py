@@ -4,12 +4,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from streamlit_option_menu import option_menu
+from sklearn.preprocessing import RobustScaler
+import joblib
+import requests
+import os
 
-DATA = "https://raw.githubusercontent.com/hng011/people-personality-analysis/refs/heads/main/people_personality_types.csv"
+DATA = "https://raw.githubusercontent.com/hng011/people-personality-analysis/refs/heads/main/datasets/people_personality_types.csv"
+ENCODED_DATA = "https://raw.githubusercontent.com/hng011/people-personality-analysis/refs/heads/main/datasets/encoded_data.csv"
 
 def fetch_data(end_point):
-    import requests
-
     res = requests.get(end_point)
     if res.status_code == 200:
         return res.content
@@ -50,11 +53,128 @@ def home(df):
                   palette=["#72BCD4", "#D3D3D3"])
     
     plt.xticks(rotation=45)
-    st.pyplot(fig)
+    st.pyplot(fig)    
 
+def get_person_characteristic():
+
+    with st.form(key="demographic"):
+        age = st.number_input("Age:", min_value=1)
+        gender = st.selectbox("Gender", ["Male", "Female"])
+        education = st.selectbox("Education Level", ["Graduate-lever or Higher", "Undergraduate or Lower"])
+        introversion_sc = st.selectbox("Introversion Score | Represent the individual's tendency toward introversion versus extraversion:", 
+                                    [1, 2, 3, 4, 5])
+        sensing_sc = st.selectbox("Sensing Score | Represent the individual's preference for sensing versus intuition", 
+                                    [1, 2, 3, 4, 5])
+        thinking_sc = st.selectbox("Thinking Score | Indicate the individual's preference for thinking versus feeling", 
+                                    [1, 2, 3, 4, 5])
+        judging_sc = st.selectbox("Judging Score | Represent the individual's preference for judging versus perceiving",
+                                    [1, 2, 3, 4, 5])
+        interest = st.selectbox("Interest", ["Arts", "Sports", "Technology", "Other", "Unknown"])
+        
+        submit_btn = st.form_submit_button(label="NGAK🦅")
+
+        success = True
+        list_data = [age, gender, education, introversion_sc, sensing_sc, thinking_sc, judging_sc, interest]
+        
+    if submit_btn:
+        return list_data, success
+    else:
+        list_data, success = [], False
+        return list_data, success
+        
+
+def predict(df):
+    """
+    AGE                 : num 
+    GENDER              : categorical (Male || Female)
+    EDUCATION           : binary (1: graduate-level edu or higher | 0: undergraduate and lower)
+    INTROVERSION SCORE  : 0 - 10 | Represent the individual's tendency toward introversion versus extraversion
+    SENSING SCORE       : 0 - 10 | Represent the individual's preference for sensing versus intuition
+    THINKING SCORE      : 0 - 10 | Indicate the individual's preference for thinking versus feeling
+    JUDGING SCORE       : 0 - 10 | Represent the individual's preference for judging versus perceiving
+    INTEREST            : 5 sectors
+    """
+    
+    # DATA ENCODING
+    GENDER = {'Male': 0.548, 'Female': 0.452}
+    
+    PERSONALITIES = {'ENFP': 34,
+                    'INTP': 30,
+                    'INFJ': 19,
+                    'INFP': 87,
+                    'ESTP': 79,
+                    'ENFJ': 88,
+                    'ENTP': 41,
+                    'ENTJ': 35,
+                    'INTJ': 46,
+                    'ESFP': 24,
+                    'ISTP': 48,
+                    'ESFJ': 17,
+                    'ISFP': 71,
+                    'ISTJ': 78,
+                    'ESTJ': 68,
+                    'ISFJ': 14}
+    
+    reversed_pers_dict = {val: key for key, val in PERSONALITIES.items()}
+    
+    INTERESTS = {'Unknown': 0.381,
+                'Arts': 0.2,
+                'Others': 0.17,
+                'Technology': 0.148,
+                'Sports': 0.101}
+
+    scores = {1: 1.0, 
+              2: 2.5, 
+              3: 5.0, 
+              4: 7.5, 
+              5:9}
+
+    # GET INPUT
+    list_data, success = get_person_characteristic()
+
+    if success:
+        age, gender, education, introversion_sc, sensing_sc, thinking_sc, judging_sc, interest = list_data
+        encoded_df = pd.read_csv(ENCODED_DATA)
+        age = float(age)
+        gender = GENDER[gender]
+        education = 1 if education == "Graduate-lever or Higher" else 0
+        introversion_sc = scores[introversion_sc]
+        sensing_sc = scores[sensing_sc]
+        thinking_sc = scores[thinking_sc]
+        judging_sc = scores[judging_sc]
+        interest = INTERESTS[interest]
+        
+        # st.write(age, gender, education, introversion_sc, sensing_sc, thinking_sc, judging_sc, interest)
+        
+        data_input = {
+            "Age":age, "Gender":gender, "Education":education, "Introversion Score":introversion_sc,
+            "Sensing Score": sensing_sc, "Thinking Score": thinking_sc, "Judging Score": judging_sc,
+            "Interest": interest 
+        }
+
+        try:
+            # Scaling
+            scaler = RobustScaler()
+            encoded_df.iloc[:, :8] = scaler.fit_transform(encoded_df.iloc[:, :8])
+            
+            inputted_data = pd.DataFrame(data_input, index=[0]) # Ensure that the values in your dictionary are lists (even if they contain a single element) when creating a DataFrame from multiple rows.
+            inputted_data.iloc[:, :] = scaler.transform(inputted_data.iloc[:,:])
+
+            st.dataframe(inputted_data)
+            
+            clf = joblib.load("../models/mbti_clf.pkl")
+            pred = clf.predict(inputted_data)
+            st.write("Personality:",reversed_pers_dict[pred[0]])
+            
+        except Exception as e:
+            st.write(e)
+    else:
+        st.write("🤸🤸🤸")
+
+    
 def main():
     df = pd.read_csv(DATA)
-    options = ["Home", "Distribution of Interests"]
+    options = ["Home", "Distribution of Interests", "Predict"]
 
     with st.sidebar:
         try:
@@ -72,6 +192,9 @@ def main():
 
     if selected == options[1]:
         distribution_of_interests(df)
+    
+    if selected == options[2]:
+        predict(df)
 
 if __name__ == "__main__":
     main()
