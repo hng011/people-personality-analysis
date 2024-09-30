@@ -5,8 +5,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from streamlit_option_menu import option_menu
 from sklearn.preprocessing import RobustScaler
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 import joblib
 import requests
+import gdown
 
 DATA = "https://raw.githubusercontent.com/hng011/people-personality-analysis/refs/heads/main/datasets/people_personality_types.csv"
 ENCODED_DATA = "https://raw.githubusercontent.com/hng011/people-personality-analysis/refs/heads/main/datasets/encoded_data.csv"
@@ -81,6 +84,27 @@ def get_person_characteristic():
         list_data, success = [], False
         return list_data, success
         
+@st.cache_data
+def load_model(data_model):
+    url = data_model
+    out = "model.pkl"
+    model = None
+
+    try:
+        gdown.download(url, out, quiet=False)
+        model = joblib.load(out)
+    except Exception as e:
+        st.write(e)
+
+    return model
+
+
+def train_model(X, y, test_size):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.3)
+    model = RandomForestClassifier(n_estimators=132)
+    model.fit(X_train, y_train)
+    return model
+    
 
 def predict(df):
     """
@@ -160,10 +184,21 @@ def predict(df):
             inputted_data.iloc[:, :] = scaler.transform(inputted_data.iloc[:,:])
 
             st.dataframe(inputted_data)
-            
-            clf = joblib.load("../models/mbti_clf.pkl")
-            pred = clf.predict(inputted_data)
-            st.write("Personality:",reversed_pers_dict[pred[0]])
+           
+            # load model
+            file_model = "https://drive.google.com/uc?id=18vwrvGCkXfUfXpfBBJDQ1wB8fxUXV5LP"  
+            # clf = load_model(file_model)
+
+            try:
+                clf = train_model(encoded_df.iloc[:, :8], encoded_df["Personality"], .3) 
+                pred = clf.predict(inputted_data)
+            except Exception as e:
+                st.write(e)
+
+            if clf:
+                st.write("Personality:",reversed_pers_dict[pred[0]])
+            else:
+                st.write("Unable to load the model")
             
         except Exception as e:
             st.write(e)

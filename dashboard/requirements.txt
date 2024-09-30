@@ -4,3 +4,4 @@ seaborn
 streamlit-option-menu
 joblib
 scikit-learn
+gdown
