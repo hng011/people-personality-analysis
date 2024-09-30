@@ -63,13 +63,13 @@ def get_person_characteristic():
         age = st.number_input("Age:", min_value=1)
         gender = st.selectbox("Gender", ["Male", "Female"])
         education = st.selectbox("Education Level", ["Graduate-lever or Higher", "Undergraduate or Lower"])
-        introversion_sc = st.selectbox("Introversion Score | Represent the individual's tendency toward introversion versus extraversion:", 
+        introversion_sc = st.selectbox("Extroversion Score")
                                     [1, 2, 3, 4, 5])
-        sensing_sc = st.selectbox("Sensing Score | Represent the individual's preference for sensing versus intuition", 
+        sensing_sc = st.selectbox("Sensing Score")
                                     [1, 2, 3, 4, 5])
-        thinking_sc = st.selectbox("Thinking Score | Indicate the individual's preference for thinking versus feeling", 
+        thinking_sc = st.selectbox("Thinking Score")
                                     [1, 2, 3, 4, 5])
-        judging_sc = st.selectbox("Judging Score | Represent the individual's preference for judging versus perceiving",
+        judging_sc = st.selectbox("Judging Score")
                                     [1, 2, 3, 4, 5])
         interest = st.selectbox("Interest", ["Arts", "Sports", "Technology", "Other", "Unknown"])
         
