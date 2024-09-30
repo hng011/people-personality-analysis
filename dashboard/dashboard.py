@@ -59,19 +59,21 @@ def home(df):
 
 def get_person_characteristic():
 
+    st.header("EXPLORE YOUR INDIVIDUAL TRAITS 😵")
+    
     with st.form(key="demographic"):
         age = st.number_input("Age:", min_value=1)
         gender = st.selectbox("Gender", ["Male", "Female"])
         education = st.selectbox("Education Level", ["Graduate-lever or Higher", "Undergraduate or Lower"])
-        introversion_sc = st.selectbox("Extroversion Score", [1, 2, 3, 4, 5])
+        extroversion_sc = st.selectbox("Extroversion Score", [1, 2, 3, 4, 5])
         sensing_sc = st.selectbox("Sensing Score", [1, 2, 3, 4, 5])
         thinking_sc = st.selectbox("Thinking Score", [1, 2, 3, 4, 5])
-        judging_sc = st.selectbox("Perceiving Score", [1, 2, 3, 4, 5])
+        judging_sc = st.selectbox("Judging Score", [1, 2, 3, 4, 5])
         interest = st.selectbox("Interest", ["Arts", "Sports", "Technology", "Other", "Unknown"])
         submit_btn = st.form_submit_button(label="NGAK🦅")
 
         success = True
-        list_data = [age, gender, education, introversion_sc, sensing_sc, thinking_sc, judging_sc, interest]
+        list_data = [age, gender, education, extroversion_sc, sensing_sc, thinking_sc, judging_sc, interest]
         
     if submit_btn:
         return list_data, success
@@ -94,8 +96,8 @@ def load_model(data_model):
     return model
 
 
-def train_model(X, y, test_size):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.3)
+def train_model(X, y, test_size=.3):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
     model = RandomForestClassifier(n_estimators=132)
     model.fit(X_train, y_train)
     return model
@@ -106,7 +108,7 @@ def predict(df):
     AGE                 : num 
     GENDER              : categorical (Male || Female)
     EDUCATION           : binary (1: graduate-level edu or higher | 0: undergraduate and lower)
-    INTROVERSION SCORE  : 0 - 10 | Represent the individual's tendency toward introversion versus extraversion
+    EXTROVERSION SCORE  : 0 - 10 | Represent the individual's tendency toward  extraversion versus introversion
     SENSING SCORE       : 0 - 10 | Represent the individual's preference for sensing versus intuition
     THINKING SCORE      : 0 - 10 | Indicate the individual's preference for thinking versus feeling
     JUDGING SCORE       : 0 - 10 | Represent the individual's preference for judging versus perceiving
@@ -151,21 +153,21 @@ def predict(df):
     list_data, success = get_person_characteristic()
 
     if success:
-        age, gender, education, introversion_sc, sensing_sc, thinking_sc, judging_sc, interest = list_data
+        age, gender, education, extroversion_sc, sensing_sc, thinking_sc, judging_sc, interest = list_data
         encoded_df = pd.read_csv(ENCODED_DATA)
         age = float(age)
         gender = GENDER[gender]
         education = 1 if education == "Graduate-lever or Higher" else 0
-        introversion_sc = scores[introversion_sc]
+        extroversion_sc = scores[extroversion_sc]
         sensing_sc = scores[sensing_sc]
         thinking_sc = scores[thinking_sc]
         judging_sc = scores[judging_sc]
         interest = INTERESTS[interest]
         
-        # st.write(age, gender, education, introversion_sc, sensing_sc, thinking_sc, judging_sc, interest)
+        # st.write(age, gender, education, extroversion_sc, sensing_sc, thinking_sc, judging_sc, interest)
         
         data_input = {
-            "Age":age, "Gender":gender, "Education":education, "Introversion Score":introversion_sc,
+            "Age":age, "Gender":gender, "Education":education, "Introversion Score":extroversion_sc, # Should be extroversion score!
             "Sensing Score": sensing_sc, "Thinking Score": thinking_sc, "Judging Score": judging_sc,
             "Interest": interest 
         }
