@@ -192,8 +192,17 @@ def predict(df):
             except Exception as e:
                 st.write(e)
 
+            traits = {
+                "E": "Extroversion", "I": "Introversion",
+                "S": "Sensing", "N":"Intuition",
+                "T":"Thinking", "F":"Feeling",
+                "J":"Judging", "P":"Perceiving"
+            }
+            
             if clf:
-                st.subheader(f"Personality: {reversed_pers_dict[pred[0]]}")
+                result = str(reversed_pers_dict[pred[0]]).upper()
+                res_str = (", ".join(traits[c] for c in result))
+                st.subheader(f"You are an {result} ({res_str})")
             else:
                 st.write("Unable to load the model")
             
