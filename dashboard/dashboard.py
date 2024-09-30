@@ -196,7 +196,7 @@ def predict(df):
                 st.write(e)
 
             if clf:
-                st.write("Personality:",reversed_pers_dict[pred[0]])
+                st.subheader(f"Personality: {reversed_pers_dict[pred[0]]}")
             else:
                 st.write("Unable to load the model")
             
