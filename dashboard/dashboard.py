@@ -63,16 +63,11 @@ def get_person_characteristic():
         age = st.number_input("Age:", min_value=1)
         gender = st.selectbox("Gender", ["Male", "Female"])
         education = st.selectbox("Education Level", ["Graduate-lever or Higher", "Undergraduate or Lower"])
-        introversion_sc = st.selectbox("Extroversion Score")
-                                    [1, 2, 3, 4, 5])
-        sensing_sc = st.selectbox("Sensing Score")
-                                    [1, 2, 3, 4, 5])
-        thinking_sc = st.selectbox("Thinking Score")
-                                    [1, 2, 3, 4, 5])
-        judging_sc = st.selectbox("Judging Score")
-                                    [1, 2, 3, 4, 5])
+        introversion_sc = st.selectbox("Extroversion Score", [1, 2, 3, 4, 5])
+        sensing_sc = st.selectbox("Sensing Score", [1, 2, 3, 4, 5])
+        thinking_sc = st.selectbox("Thinking Score", [1, 2, 3, 4, 5])
+        judging_sc = st.selectbox("Perceiving Score", [1, 2, 3, 4, 5])
         interest = st.selectbox("Interest", ["Arts", "Sports", "Technology", "Other", "Unknown"])
-        
         submit_btn = st.form_submit_button(label="NGAK🦅")
 
         success = True
@@ -208,7 +203,7 @@ def predict(df):
     
 def main():
     df = pd.read_csv(DATA)
-    options = ["Home", "Distribution of Interests", "Predict"]
+    options = ["Home", "Distribution of Interests", "MBTI Test"]
 
     with st.sidebar:
         try:
