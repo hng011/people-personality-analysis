@@ -1,5 +1,7 @@
-numpy
 pandas
 matplotlib
 seaborn
-streamlit-open-menu
+streamlit-option-menu
+joblib
+scikit-learn
+gdown
